@@ -113,7 +113,8 @@ print("shape", data.shape)
 test_xx = min_max_scalar.transform(test_data).T
 test_xx = np.dot(Wt, test_xx).T
 
-print(test_label)
+accuracy = 0.0
+
 for num in range(12):
     xx = test_xx[num]
     label = test_label[num]
@@ -129,35 +130,74 @@ for num in range(12):
     count0 = 0.0
     count1 = 0.0
     count2 = 0.0
-    for i in range(50):
+    i = 0
+    while i<10:
         if train_label[index[i]] == 0:
             count0 += 1
         elif train_label[index[i]] == 1:
             count1 += 1
         elif train_label[index[i]] == 2:
             count2 += 1
-    # count0 /= 6
-    # count1 /= 7
-    # count2 /= 5
+        i += 1
+        
+    count0 /= 6
+    count1 /= 7
+    count2 /= 5
 
-    print(count0,count1,count2)
-    if count0 > max(count1, count2):
+    if count0>max(count1,count2):
         print('0')
         if label == 0:
             print("success")
+            print(count0, count1, count2)
+            accuracy += 1
         else:
-            print("wrong")
-    elif count1 > max(count0, count2):
+            print("wrong",index[i],num)
+            print(index)
+            print(count0, count1, count2)
+        
+    elif count1>max(count0,count2):
         print('1')
         if label == 1:
             print("success")
+            print(count0, count1, count2)
+            accuracy += 1
         else:
-            print("wrong")
-    elif count2 > max(count1, count0):
+            print("wrong",index[i],num)
+            print(index)
+            print(count0, count1, count2)
+        
+    elif count2>max(count1,count0):
         print('2')
         if label == 2:
             print("success")
+            print(count0, count1, count2)
+            accuracy += 1
         else:
-            print("wrong")
+            print("wrong",index[i],num)
+            print(index)
+            print(count0, count1, count2)
+        
+
+
+    # if count0 > max(count1, count2):
+    #     print('0')
+    #     if label == 0:
+    #         print("success")
+    #     else:
+    #         print("wrong")
+    # elif count1 > max(count0, count2):
+    #     print('1')
+    #     if label == 1:
+    #         print("success")
+    #     else:
+    #         print("wrong")
+    # elif count2 > max(count1, count0):
+    #     print('2')
+    #     if label == 2:
+    #         print("success")
+    #     else:
+    #         print("wrong")
 
     # print(count0, count1, count2)
+
+print("accuracy:",'{:.2f}'.format(accuracy/12*100),"%")
