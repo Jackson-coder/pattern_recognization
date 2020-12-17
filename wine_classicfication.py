@@ -94,8 +94,6 @@ m, Sb = calculate_Sb(data, mi, 13, 1.0/3)
 J2 = np.dot(Sw_inv, Sb)
 feature_value, feature_vecctor = np.linalg.eig(J2)
 
-print(feature_value)
-
 index_low_to_high = np.argsort(feature_value, kind='quicksort')  # 索引按从小到大排序
 # 求降维矩阵Wt
 Wt = np.zeros((4, 13))
@@ -105,10 +103,6 @@ for i in range(4):
     Wt[i] = feature_vecctor[index]
 
 data = np.dot(Wt, data.T).T
-print("shape", data.shape)
-
-# test_x = np.array(
-#     [[13.4,4.6,2.86,25,112,1.98,0.96,0.27,1.11,8.5,0.67,1.92,630]])
 
 test_xx = min_max_scalar.transform(test_data).T
 test_xx = np.dot(Wt, test_xx).T
@@ -121,17 +115,15 @@ for num in range(12):
     dist = []
     for data_x in data:
         data_x = data_x.reshape((1, 4))
-        # print(data_x.shape,xx.shape)
         dist.append(np.linalg.norm(data_x-xx))
 
     index = np.argsort(dist)
-    # print(index)
 
     count0 = 0.0
     count1 = 0.0
     count2 = 0.0
     i = 0
-    while i<10:
+    while i<25:
         if train_label[index[i]] == 0:
             count0 += 1
         elif train_label[index[i]] == 1:
@@ -139,65 +131,24 @@ for num in range(12):
         elif train_label[index[i]] == 2:
             count2 += 1
         i += 1
-        
+    
+    print(count0,count1,count2)
+    print(index)
     count0 /= 6
     count1 /= 7
     count2 /= 5
 
-    if count0>max(count1,count2):
+    if count0>=max(count1,count2):
         print('0')
         if label == 0:
-            print("success")
-            print(count0, count1, count2)
             accuracy += 1
-        else:
-            print("wrong",index[i],num)
-            print(index)
-            print(count0, count1, count2)
-        
-    elif count1>max(count0,count2):
+    elif count1>=max(count0,count2):
         print('1')
         if label == 1:
-            print("success")
-            print(count0, count1, count2)
-            accuracy += 1
-        else:
-            print("wrong",index[i],num)
-            print(index)
-            print(count0, count1, count2)
-        
+            accuracy += 1       
     elif count2>max(count1,count0):
         print('2')
         if label == 2:
-            print("success")
-            print(count0, count1, count2)
             accuracy += 1
-        else:
-            print("wrong",index[i],num)
-            print(index)
-            print(count0, count1, count2)
-        
-
-
-    # if count0 > max(count1, count2):
-    #     print('0')
-    #     if label == 0:
-    #         print("success")
-    #     else:
-    #         print("wrong")
-    # elif count1 > max(count0, count2):
-    #     print('1')
-    #     if label == 1:
-    #         print("success")
-    #     else:
-    #         print("wrong")
-    # elif count2 > max(count1, count0):
-    #     print('2')
-    #     if label == 2:
-    #         print("success")
-    #     else:
-    #         print("wrong")
-
-    # print(count0, count1, count2)
 
 print("accuracy:",'{:.2f}'.format(accuracy/12*100),"%")
