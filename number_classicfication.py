@@ -43,9 +43,9 @@ def data_process(path_name):
 
     # 设置随机种子，将前500个样本作为训练集，将后50个样本作为测试集
 
-    np.random.seed(90)
+    np.random.seed(80)
     np.random.shuffle(samples)
-    np.random.seed(90)
+    np.random.seed(80)
     np.random.shuffle(labels)
 
     training_samples = np.array(samples[:500])
@@ -67,9 +67,9 @@ print(training_samples.shape)
 
 # 使用网格搜索法，选择非线性SVM“类”中的最佳C值
 kernel = ['linear', 'rbf', 'sigmoid']
-C = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]  # 5
+C = [4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 9, 10]  # 5
 parameters = {'kernel': kernel, 'C': C}
-grid_svc = model_selection.GridSearchCV(estimator=svm.SVC(
+grid_svc = model_selection.GridSearchCV(estimator=svm.SVC(decision_function_shape='ovo'
 ), param_grid=parameters, scoring='accuracy', cv=5, verbose=1)
 print("waiting...")
 # 模型在训练数据集上的拟合
@@ -78,7 +78,7 @@ grid_svc.fit(training_samples, training_labels)
 print(grid_svc.best_params_, grid_svc.best_score_)
 
 # svm_svc = svm.SVC(C=1,kernel='rbf')
-svm_svc = svm.SVC(**(grid_svc.best_params_))
+svm_svc = svm.SVC(**(grid_svc.best_params_),decision_function_shape='ovo')
 svm_svc.fit(training_samples, training_labels)
 
 # 模型在测试集上的预测
@@ -88,7 +88,7 @@ print(accuracy_score(testing_labels, pred_svc))
 
 print("training_accuracy", svm_svc.score(training_samples, training_labels)*100,"%")
 print("testing_accuracy", svm_svc.score(testing_samples, testing_labels)*100,"%")
-result = svm_svc.predict(testing_samples)
+
 
 # 测试样本真实标签和预测标签
 # print(testing_labels)
