@@ -2,7 +2,7 @@ import numpy as np
 import csv
 from sklearn import preprocessing
 
-
+#以下两个函数分别求Sw和Sb
 def calculate_Sw(data, left, right, length_of_vector, P):
     # mean
     m = np.zeros((length_of_vector,))
@@ -52,6 +52,7 @@ reader = csv.reader(fs)
 
 lines = list(reader)
 
+#制作数据集（训练集样本，测试集样本，训练集标签，测试集标签）
 lines = np.array((lines[1:]))
 train_data = np.zeros((166, 13), dtype=float)
 test_data = np.zeros((12, 13), dtype=float)
@@ -75,7 +76,7 @@ for i in range(178):
 
 
 # feature selection
-
+# 根据距离的可分性判据，J2 = Sw^(-1)Sb
 # normalization
 min_max_scalar = preprocessing.MinMaxScaler()
 data = min_max_scalar.fit_transform(train_data)  # 训练集归一化
@@ -92,8 +93,11 @@ mi = np.array([m1, m2, m3])
 m, Sb = calculate_Sb(data, mi, 13, 1.0/3)
 
 J2 = np.dot(Sw_inv, Sb)
+
+#根据J2求特征值和特征向量
 feature_value, feature_vecctor = np.linalg.eig(J2)
 
+#提取特征值最大的几个特征值对应的特征
 index_low_to_high = np.argsort(feature_value, kind='quicksort')  # 索引按从小到大排序
 # 求降维矩阵Wt
 Wt = np.zeros((4, 13))
@@ -104,12 +108,14 @@ for i in range(4):
 
 data = np.dot(Wt, data.T).T
 
-test_xx = min_max_scalar.transform(test_data).T
-test_xx = np.dot(Wt, test_xx).T
+test_xx = min_max_scalar.transform(test_data).T  #测试数据归一化处理
+test_xx = np.dot(Wt, test_xx).T  #降维
 
 accuracy = 0.0
 
-for num in range(12):
+#采用KNN算法，依据K=25时，根据聚类结果判断类别
+
+for num in range(12):   #12个测试数据
     xx = test_xx[num]
     label = test_label[num]
     dist = []
@@ -151,4 +157,5 @@ for num in range(12):
         if label == 2:
             accuracy += 1
 
+#输出准确率：
 print("accuracy:",'{:.2f}'.format(accuracy/12*100),"%")
