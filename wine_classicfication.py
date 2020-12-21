@@ -138,24 +138,25 @@ for num in range(12):   #12个测试数据
             count2 += 1
         i += 1
     
-    print(count0,count1,count2)
-    print(index)
+    # print(count0,count1,count2)
+    # print(index)
     count0 /= 6
     count1 /= 7
     count2 /= 5
 
     if count0>=max(count1,count2):
-        print('0')
+        print('0',end=",")
         if label == 0:
             accuracy += 1
     elif count1>=max(count0,count2):
-        print('1')
+        print('1',end=",")
         if label == 1:
             accuracy += 1       
     elif count2>max(count1,count0):
-        print('2')
+        print('2',end=",")
         if label == 2:
             accuracy += 1
 
 #输出准确率：
+print()
 print("accuracy:",'{:.2f}'.format(accuracy/12*100),"%")

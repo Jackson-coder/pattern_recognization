@@ -30,7 +30,7 @@ def data_process(path_name):
             # 将图片数据和对应的标签相匹配
             samples.append(data)
             labels.append(number)
-            print(data)
+            # print(data)
 
     samples = np.array(samples)
     samples = np.resize(samples, (550, 300))
@@ -86,8 +86,8 @@ pred_svc = svm_svc.predict(testing_samples)
 # 模型的预测准确率
 print(accuracy_score(testing_labels, pred_svc))
 
-print("training_accuracy", svm_svc.score(training_samples, training_labels))
-print("testing_accuracy", svm_svc.score(testing_samples, testing_labels))
+print("training_accuracy", svm_svc.score(training_samples, training_labels)*100,"%")
+print("testing_accuracy", svm_svc.score(testing_samples, testing_labels)*100,"%")
 result = svm_svc.predict(testing_samples)
 
 # 测试样本真实标签和预测标签
