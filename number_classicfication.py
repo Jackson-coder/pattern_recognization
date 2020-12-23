@@ -2,7 +2,7 @@ import numpy as np
 import os
 from sklearn import preprocessing
 from sklearn import svm
-from sklearn import decomposition
+from sklearn import decomposition,discriminant_analysis
 from sklearn import model_selection
 from sklearn.metrics import confusion_matrix, classification_report, accuracy_score
 from cv2 import cv2 as cv
@@ -23,7 +23,7 @@ def data_process(path_name):
             file_png = cv.imread(root_paths+'/'+File)
             file_png = cv.cvtColor(file_png, cv.COLOR_BGR2GRAY)
             # 将图片缩小化，实现数据量的大幅减少，减少冗余数据对分类效果、分类时长的不良影响
-            file_png = cv.resize(file_png, (20, 15))
+            file_png = cv.resize(file_png, (32, 24))
             # 将图片数据进行归一化处理，flatten成一维数据，便于后续的特征提取操作
             file_png = file_png/255
             data = np.reshape(file_png, (1, -1))
@@ -33,23 +33,24 @@ def data_process(path_name):
             # print(data)
 
     samples = np.array(samples)
-    samples = np.resize(samples, (550, 300))
+    samples = np.resize(samples, (550, 768))
 
     # PCA降维，提取相关性较强的特征
 
-    pca = decomposition.PCA(n_components=30)
-    new_samples = pca.fit_transform(samples)
-    print(pca.explained_variance_ratio_)
+    # pca = decomposition.PCA(n_components=40)
+    pca = discriminant_analysis.LinearDiscriminantAnalysis(n_components=9)
+    new_samples = pca.fit_transform(samples,labels)
+    # print(pca.explained_variance_ratio_)
 
     # 设置随机种子，将前500个样本作为训练集，将后50个样本作为测试集
 
     np.random.seed(80)
-    np.random.shuffle(samples)
+    np.random.shuffle(new_samples)
     np.random.seed(80)
     np.random.shuffle(labels)
 
-    training_samples = np.array(samples[:500])
-    testing_samples = np.array(samples[500:])
+    training_samples = np.array(new_samples[:500])
+    testing_samples = np.array(new_samples[500:])
     training_labels = np.array(labels[:500])
     testing_labels = np.array(labels[500:])
 
@@ -65,20 +66,23 @@ training_samples = np.reshape(training_samples, (500, -1))
 testing_samples = np.reshape(testing_samples, (50, -1))
 print(training_samples.shape)
 
-# 使用网格搜索法，选择非线性SVM“类”中的最佳C值
-kernel = ['linear', 'rbf', 'sigmoid']
-C = [4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 9, 10]  # 5
-parameters = {'kernel': kernel, 'C': C}
-grid_svc = model_selection.GridSearchCV(estimator=svm.SVC(decision_function_shape='ovo'
-), param_grid=parameters, scoring='accuracy', cv=5, verbose=1)
-print("waiting...")
-# 模型在训练数据集上的拟合
-grid_svc.fit(training_samples, training_labels)
-# 返回交叉验证后的最佳参数值
-print(grid_svc.best_params_, grid_svc.best_score_)
+# # 使用网格搜索法，选择非线性SVM“类”中的最佳C值
+# kernel = ['linear', 'rbf', 'sigmoid']
+# C = [4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 9, 10]  # 5
+# parameters = {'kernel': kernel, 'C': C}
+# grid_svc = model_selection.GridSearchCV(estimator=svm.SVC(decision_function_shape='ovo'
+# ), param_grid=parameters, scoring='accuracy', cv=5, verbose=1)
+# print("waiting...")
+# # 模型在训练数据集上的拟合
+# grid_svc.fit(training_samples, training_labels)
+# # 返回交叉验证后的最佳参数值
+# print(grid_svc.best_params_, grid_svc.best_score_)
 
-# svm_svc = svm.SVC(C=1,kernel='rbf')
-svm_svc = svm.SVC(**(grid_svc.best_params_),decision_function_shape='ovo')
+# # svm_svc = svm.SVC(C=1,kernel='rbf')
+# svm_svc = svm.SVC(**(grid_svc.best_params_),decision_function_shape='ovo')
+
+svm_svc = svm.SVC(C=1,decision_function_shape='ovo')
+
 svm_svc.fit(training_samples, training_labels)
 
 # 模型在测试集上的预测
