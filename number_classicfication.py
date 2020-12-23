@@ -35,11 +35,11 @@ def data_process(path_name):
     samples = np.array(samples)
     samples = np.resize(samples, (550, 768))
 
-    # PCA降维，提取相关性较强的特征
+    # LDA降维，提取相关性较强的特征
 
     # pca = decomposition.PCA(n_components=40)
-    pca = discriminant_analysis.LinearDiscriminantAnalysis(n_components=9)
-    new_samples = pca.fit_transform(samples,labels)
+    lda = discriminant_analysis.LinearDiscriminantAnalysis(n_components=9)
+    new_samples = lda.fit_transform(samples,labels)
     # print(pca.explained_variance_ratio_)
 
     # 设置随机种子，将前500个样本作为训练集，将后50个样本作为测试集
