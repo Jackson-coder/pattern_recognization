@@ -4,8 +4,10 @@ from sklearn import preprocessing
 from sklearn import svm
 from sklearn import decomposition,discriminant_analysis
 from sklearn import model_selection
-from sklearn.metrics import confusion_matrix, classification_report, accuracy_score
+from sklearn.metrics import confusion_matrix, classification_report, accuracy_score, make_scorer,recall_score
 from cv2 import cv2 as cv
+from sklearn.model_selection import cross_val_score,cross_validate
+import matplotlib.pyplot as plt
 
 # 数据集制作：
 # @path_name:"the path of the picture file"
@@ -87,13 +89,32 @@ svm_svc.fit(training_samples, training_labels)
 
 # 模型在测试集上的预测
 pred_svc = svm_svc.predict(testing_samples)
+
 # 模型的预测准确率
-print(accuracy_score(testing_labels, pred_svc))
+scoring = ['precision_macro', 'recall_macro']
+#print(cross_val_score(svm_svc, training_samples, training_labels, cv=5))
+#通过设置return_estimator=True来保留在所有训练集上拟合好的估计器;
+#return_train_score 默认设置为 True 。 它增加了所有 scorers(得分器) 的训练得分 keys 。如果不需要训练 scores ，则应将其明确设置为 False 
+scores = cross_validate(svm_svc, training_samples, training_labels, scoring=scoring, cv=50, return_train_score=True)
+
+t = np.vstack((scores['train_recall_macro'],scores['train_precision_macro']))
+t = t.T[np.argsort(t.T[:,0])].T
+
+# svm_clu = svm.SVR(kernel='rbf')
+# svm_clu.fit(scores['train_recall_macro'].reshape((-1,1)), scores['train_precision_macro'])
+# pred_svc = svm_clu.predict(np.random.uniform(0,1,(10,)).reshape((-1,1)))
+
+plt.plot(t[0],t[1])
+plt.yticks(np.linspace(0.9,1.0,10))
+plt.ylabel('precision')
+plt.xlabel('recall')
+plt.title('PR')
+plt.show()
 
 print("training_accuracy", svm_svc.score(training_samples, training_labels)*100,"%")
 print("testing_accuracy", svm_svc.score(testing_samples, testing_labels)*100,"%")
 
 
-# 测试样本真实标签和预测标签
-# print(testing_labels)
-# print(result)
+# # 测试样本真实标签和预测标签
+# # print(testing_labels)
+# # print(result)
